@@ -12,7 +12,7 @@ namespace BoardGame {
         [SerializeField, HideInInspector] internal Vector2Int coordinate;
         [SerializeField, HideInInspector] internal uint bitmask;
         [SerializeField, HideInInspector] internal Vector2Int portalTarget;
-        [SerializeField, HideInInspector] internal int movementPenalty = 1;
+        [SerializeField, HideInInspector] internal int movementPenalty;
         
         /// <summary>
         /// Returns the (discrete) coordinate of this tile.

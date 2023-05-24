@@ -13,6 +13,7 @@ public class Tile : TileParent {
     public Tile Parent;
     public List<Tile> Neighbours;
     public int? MinCostToStart = null; // Penalty to travel here from start position
+    public int MovementCost => movementPenalty == 0 ? 1 : movementPenalty;
 
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.

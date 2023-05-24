@@ -64,30 +64,34 @@ public class Board : BoardParent
 
             foreach (Tile neighbour in current.Neighbours)
             {
-                Debug.Log("Checking neighbour " + neighbour.coordinate);
                 if (closed.Contains(neighbour)) continue; // ignore if already "locked in"
                 if (open.Contains(neighbour))
                 {
-                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
+                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.MovementCost)
                     {
                         neighbour.Parent = current;
-                        neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
+                        neighbour.MinCostToStart = current.MinCostToStart + neighbour.MovementCost;
                     }
                 }
                 else
                 {
                     neighbour.Parent = current;
-                    neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
+                    neighbour.MinCostToStart = current.MinCostToStart + neighbour.MovementCost;
                     open.Add(neighbour);
-                    Debug.Log(open.Count);
                 }
                 
             }
             closed.Add(current);
-            Debug.Log(open.Count);
-            
-            // if (Solutions.Count == numberOfCheckpoints)
-            // return;
+
+            if (Solutions.Count == numberOfCheckpoints && current.MinCostToStart > MaxSteps)
+            {
+                foreach (var tile in closed)
+                {
+                    if (tile.MinCostToStart <= MaxSteps)
+                        Reachable.Add(tile);
+                }
+                return;
+            }
         } while (open.Any());
     }
 
@@ -96,7 +100,11 @@ public class Board : BoardParent
     private void Backtrack(Tile end, Tile start, List<Tile> result)
     {
         result.Add(end);
-        if (end == start) return;
+        if (end == start)
+        {
+            result.Reverse();
+            return;
+        }
         Backtrack(end.Parent, start, result);
     }
     
