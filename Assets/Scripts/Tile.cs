@@ -1,4 +1,5 @@
-﻿using BoardGame;
+﻿using System.Collections.Generic;
+using BoardGame;
 using UnityEngine;
 
 public class Tile : TileParent {
@@ -7,6 +8,13 @@ public class Tile : TileParent {
     // to store data.
     public Material regularMaterial;
     public Material blockedMaterial;
+
+    // Path finding 
+    public Tile Parent;
+    public List<Tile> Neighbours; //Todo: Set neighbours
+    public float Cost = 0; // TODO: take into account Obstacle etc
+
+    
     
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.
@@ -36,10 +44,12 @@ public class Tile : TileParent {
         }
         
         // 4. Other tiles can be accessed through the 'board' instance
-        if (board.TryGetTile(new Vector2Int(2, 1), out Tile otherTile)) {
-            
-        }
-        
+        // Add neighbours
+        if (board.TryGetTile(coordinate + Vector2Int.up, out Tile neighbour)) Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.down, out neighbour)) Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.left, out neighbour)) Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour)) Neighbours.Add(neighbour);
+
         // 5. Change the material color if this tile is blocked
         if (TryGetComponent<MeshRenderer>(out var meshRenderer)) {
             if (IsBlocked) {
