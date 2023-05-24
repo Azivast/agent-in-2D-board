@@ -1,13 +1,22 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BoardGame;
 using Unity.VisualScripting;
 using UnityEngine;
+using Vectors;
 
 [ExecuteAlways]
 public class Board : BoardParent
 {
+    [HideInInspector] public int numberOfCheckpoints;
+    public int MaxSteps;
+    public List<List<Tile>> Solutions = new();
+    public List<Tile> Reachable = new ();
+
+
+
     // This function is called whenever the board or any tile inside the board
     // is modified.
     public override void SetupBoard() {
@@ -15,16 +24,16 @@ public class Board : BoardParent
         // 1. Get the size of the board
         var boardSize = BoardSize;
         
+        Solutions.Clear();
+        Reachable.Clear();
+        numberOfCheckpoints = 0;
+        
         // 2. Iterate over all tiles
-        foreach (Tile tile in Tiles) {
+        foreach (Tile tile in Tiles)
+        {
             if (tile.IsStartPoint)
             {
-                var paths = SearchPath(tile);
-                for (int i = 0; i < paths.Count - 1; i++)
-                {
-                    Debug.Log(paths[i]);
-                }
-                
+                SearchPath(tile);
             }
         }
         
@@ -36,66 +45,59 @@ public class Board : BoardParent
     }
     
     // Find path to checkpoints
-    public List<Vector2Int[]> SearchPath(Tile start)
+    private void SearchPath(Tile start)
     {
-        List<Vector2Int[]> result = new List<Vector2Int[]>();
-
-        SortedList<float, Tile> open = new SortedList<float, Tile>(); // tiles to visit
-        open.Add(start.movementPenalty, start);
-        Dictionary<Tile, float> closed = new Dictionary<Tile, float>(); // visited tiles
-
-        float totalPenalty = 0;
-        for(int i = 0; i < open.Count; i++)
+        var open = new List<Tile> { start };
+        var closed = new List<Tile>();
+        do
         {
+            open = open.OrderBy(tile => tile.MinCostToStart).ToList();
             Tile current = open[0];
-            totalPenalty += current.Cost;
-            closed.Add(current, totalPenalty);
-            open.RemoveAt(0);
-
+            open.Remove(current);
             
             if (current.IsCheckPoint)
             {
-                List<Vector2Int> path = new List<Vector2Int>();
-                ExtractPath(start, current, path);
-                result.Add(path.ToArray());
+                List<Tile> solution = new();
+                Backtrack(current, start, solution);
+                Solutions.Add(solution);
             }
-            
+
             foreach (Tile neighbour in current.Neighbours)
             {
-                neighbour.Parent = current;
-                if (closed.ContainsKey(neighbour)) // If == -> multiple paths with same cost, doesn't matter which one we pick
+                Debug.Log("Checking neighbour " + neighbour.coordinate);
+                if (closed.Contains(neighbour)) continue; // ignore if already "locked in"
+                if (open.Contains(neighbour))
                 {
-                    if (closed[neighbour] > neighbour.movementPenalty + current.movementPenalty)
-                        closed.Add(neighbour, neighbour.movementPenalty + current.movementPenalty);
+                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
+                    {
+                        neighbour.Parent = current;
+                        neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
+                    }
                 }
                 else
                 {
-                    closed.Add(neighbour, neighbour.movementPenalty+current.movementPenalty);
-                    i--; // one more to check
+                    neighbour.Parent = current;
+                    neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
+                    open.Add(neighbour);
+                    Debug.Log(open.Count);
                 }
+                
             }
-        }
-        // TODO replace this with something reasonable
-        Vector2Int[] tmp = new Vector2Int[closed.Keys.Count];
-        int j = 0;
-        foreach (Tile tile in closed.Keys)
-        {
-            tmp[j] = tile.coordinate;
-            j++;
-        }
-        
-        result.Add(tmp);
-        return result;
+            closed.Add(current);
+            Debug.Log(open.Count);
+            
+            // if (Solutions.Count == numberOfCheckpoints)
+            // return;
+        } while (open.Any());
     }
 
     // Extract the shortest path between two tiles using their parents.
     // Relies on result being provided from SearchPath()
-    private void ExtractPath(Tile end, Tile start, List<Vector2Int> result)
+    private void Backtrack(Tile end, Tile start, List<Tile> result)
     {
+        result.Add(end);
         if (end == start) return;
-
-        result.Add(end.coordinate);
-        ExtractPath(end.Parent, start, result);
+        Backtrack(end.Parent, start, result);
     }
     
     
