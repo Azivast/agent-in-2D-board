@@ -596,6 +596,7 @@ GameObject:
   - component: {fileID: 7649096305298201739}
   - component: {fileID: 8064786734946004866}
   - component: {fileID: 4552274087867389763}
+  - component: {fileID: 8921559704482711800}
   m_Layer: 0
   m_Name: Tile
   m_TagString: Untagged
@@ -643,7 +644,6 @@ MonoBehaviour:
   penaltyMaterial: {fileID: 2100000, guid: 96169ea7d70b94849baa4b93ed4740e9, type: 2}
   Parent: {fileID: 0}
   Neighbours: []
-  Cost: 0
 --- !u!33 &8064786734946004866
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -694,6 +694,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8921559704482711800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216527468675018736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d27c72da2cd454c973e83cb185a8cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 0.3
+  tipHeight: 0.7
+  layer: 0
+  camera: {fileID: 0}
 --- !u!1 &8698264233491902925
 GameObject:
   m_ObjectHideFlags: 0

@@ -51,7 +51,6 @@ public class Board : BoardParent
         var closed = new List<Tile>();
         do
         {
-            open = open.OrderBy(tile => tile.MinCostToStart).ToList();
             Tile current = open[0];
             open.Remove(current);
             
@@ -64,6 +63,12 @@ public class Board : BoardParent
 
             foreach (Tile neighbour in current.Neighbours)
             {
+                // if (neighbour.IsPortal(out var target))
+                // {
+                //     Tile targetTile;
+                //     TryGetTile(target, out targetTile);
+                //     neighbour = targetTile;
+                // }
                 if (closed.Contains(neighbour)) continue; // ignore if already "locked in"
                 if (open.Contains(neighbour))
                 {
@@ -81,6 +86,8 @@ public class Board : BoardParent
                 }
                 
             }
+            open.Sort((x, y) => x.MinCostToStart-y.MinCostToStart); // sort list in ascending MinCostToStart
+            if (open.Any());
             closed.Add(current);
 
             if (Solutions.Count == numberOfCheckpoints && current.MinCostToStart > MaxSteps)

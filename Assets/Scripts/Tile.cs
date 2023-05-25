@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BoardGame;
 using UnityEngine;
+using Vectors;
 
+[RequireComponent(typeof(VectorRenderer))]
 public class Tile : TileParent {
     
     // 1. TileParent extends MonoBehavior, so you can add member variables here
@@ -12,8 +15,15 @@ public class Tile : TileParent {
     // Path finding 
     public Tile Parent;
     public List<Tile> Neighbours;
-    public int? MinCostToStart = null; // Penalty to travel here from start position
+    internal int MinCostToStart; // Penalty to travel here from start position
     public int MovementCost => movementPenalty == 0 ? 1 : movementPenalty;
+    
+    //[NonSerialized] 
+    public VectorRenderer vectors;
+    
+    void Start() {
+        vectors = GetComponent<VectorRenderer>();
+    }
 
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.
@@ -77,7 +87,16 @@ public class Tile : TileParent {
 
     // This function is called during the regular 'Update' step, but also gives
     // you access to the 'board' instance.
-    public override void OnUpdate(Board board) 
+    public override void OnUpdate(Board board)
     {
+        if (IsPortal(out var target))
+        {
+            using (vectors.Begin())
+            {
+                vectors.Draw(new Vector3(coordinate.x, 1, coordinate.y),
+                    new Vector3(target.x, 0.3f, target.y),
+                    Color.magenta);
+            }
+        }
     }
 }

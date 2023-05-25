@@ -27,18 +27,18 @@ public class VectorVisualizer : MonoBehaviour
             {
                 for (int i = 0; i < solution.Count-1; i++)
                 {
-                    vectors.Draw(new Vector3( solution[i].coordinate.x,  1, solution[i].coordinate.y),
-                        new Vector3(solution[i+1].coordinate.x,  1, solution[i+1].coordinate.y),
+                    vectors.Draw(new Vector3( solution[i].coordinate.x,  0.5f, solution[i].coordinate.y),
+                        new Vector3(solution[i+1].coordinate.x,  0.5f, solution[i+1].coordinate.y),
                         Color.green);
                 }
             }
 
-            // foreach (Tile pos in board.Reachable)
-            // {
-            //     vectors.Draw(new Vector3(pos.coordinate.x, 0, pos.coordinate.y),
-            //         new Vector3( pos.coordinate.x, 0.5f, pos.coordinate.y), 
-            //         Color.blue);
-            // }
+            foreach (Tile pos in board.Reachable)
+            {
+                vectors.Draw(new Vector3(pos.coordinate.x, 0, pos.coordinate.y),
+                    new Vector3( pos.coordinate.x, 1f, pos.coordinate.y), 
+                    Color.blue);
+            }
         }
     }
 }
