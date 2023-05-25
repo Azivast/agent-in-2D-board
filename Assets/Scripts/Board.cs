@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BoardGame;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using Vectors;
 
@@ -14,8 +15,6 @@ public class Board : BoardParent
     public int MaxSteps;
     public List<List<Tile>> Solutions = new();
     public List<Tile> Reachable = new ();
-
-
 
     // This function is called whenever the board or any tile inside the board
     // is modified.
@@ -29,13 +28,12 @@ public class Board : BoardParent
         numberOfCheckpoints = 0;
         
         
-        // Setup each tile & save starting tile
-        
+        // Setup each tile
         foreach (var tile in Tiles) { 
             tile.OnSetup(this);
         }
         
-        // 
+        // Run Djikstras algorithm from starting point
         foreach (Tile tile in Tiles)
         {
             if (tile.IsStartPoint)
@@ -98,7 +96,7 @@ public class Board : BoardParent
             closed.Add(current);
             
             if (current.MinCostToStart <= MaxSteps) Reachable.Add(current);
-            else if (numberOfCheckpoints != 0 && (Solutions.Count == numberOfCheckpoints)) return;
+            else if (numberOfCheckpoints != 0 && Solutions.Count == numberOfCheckpoints) return;
             
         } while (open.Any());
     }

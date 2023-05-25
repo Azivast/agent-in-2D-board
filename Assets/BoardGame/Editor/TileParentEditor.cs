@@ -60,7 +60,7 @@ namespace BoardGame.Editor {
                     
                     foreach (var tile in board.Tiles) {
                         Undo.RegisterCompleteObjectUndo(tile, "Edit modifiers");
-                        tile.OnSetup(board);
+                        //tile.OnSetup(board);
                         EditorUtility.SetDirty(tile);
                     }
                 }
@@ -189,8 +189,6 @@ namespace BoardGame.Editor {
                 
                 hasBoardChanged = true;
             }
-            
-            //EditorGUILayout.EndHorizontal();
             EditorGUI.showMixedValue = false;
         }
 

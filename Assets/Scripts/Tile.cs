@@ -4,6 +4,7 @@ using BoardGame;
 using TMPro;
 using Unity.Collections;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using Vectors;
 
@@ -22,7 +23,7 @@ public class Tile : TileParent {
         set
         {
             minCostToStartInternal = value;
-            stepsText.text = (value == 0) ? "" : value.ToString();
+            stepsText.text = (value == 0) ? "-" : value.ToString();
         }
     }
 
@@ -44,7 +45,6 @@ public class Tile : TileParent {
         if(stepsText == null) stepsText = transform.GetComponentInChildren<TMP_Text>();
         
         // Clear old data
-        movementPenalty = 1;
         MinCostToStart = 0;
 
         // Add neighbours
