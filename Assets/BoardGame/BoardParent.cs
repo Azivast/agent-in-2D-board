@@ -131,12 +131,13 @@ namespace BoardGame {
                 }
                 #endif
             }
-
+            
             SetupBoard();
             
-            foreach (var tile in Tiles) {
-                tile.OnSetup((Board) this);
-            }
+            // Order of executing methods in these scripts is super wierd. Below is handled from SetupBoard instead //Olle
+            // foreach (var tile in Tiles) { 
+            //     tile.OnSetup((Board) this);
+            // }
         }
         
         #if UNITY_EDITOR

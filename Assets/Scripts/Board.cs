@@ -28,7 +28,14 @@ public class Board : BoardParent
         Reachable.Clear();
         numberOfCheckpoints = 0;
         
-        // 2. Iterate over all tiles
+        
+        // Setup each tile & save starting tile
+        
+        foreach (var tile in Tiles) { 
+            tile.OnSetup(this);
+        }
+        
+        // 
         foreach (Tile tile in Tiles)
         {
             if (tile.IsStartPoint)
@@ -47,13 +54,15 @@ public class Board : BoardParent
     // Find path to checkpoints
     private void SearchPath(Tile start)
     {
+        start.movementPenalty = 0;
         var open = new List<Tile> { start };
         var closed = new List<Tile>();
+        
         do
         {
             Tile current = open[0];
             open.Remove(current);
-            
+
             if (current.IsCheckPoint)
             {
                 List<Tile> solution = new();
@@ -63,42 +72,34 @@ public class Board : BoardParent
 
             foreach (Tile neighbour in current.Neighbours)
             {
-                // if (neighbour.IsPortal(out var target))
-                // {
-                //     Tile targetTile;
-                //     TryGetTile(target, out targetTile);
-                //     neighbour = targetTile;
-                // }
-                if (closed.Contains(neighbour)) continue; // ignore if already "locked in"
+                if (closed.Contains(neighbour)) continue; // ignore if already visited
+
                 if (open.Contains(neighbour))
                 {
-                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.MovementCost)
+                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
                     {
                         neighbour.Parent = current;
-                        neighbour.MinCostToStart = current.MinCostToStart + neighbour.MovementCost;
+                        neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
                     }
                 }
                 else
                 {
                     neighbour.Parent = current;
-                    neighbour.MinCostToStart = current.MinCostToStart + neighbour.MovementCost;
+                    if (current.IsPortal(out _))
+                    {
+                        neighbour.MinCostToStart = current.MinCostToStart; // not applying movement cost when traveling though portals
+                    }
+                    else neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
                     open.Add(neighbour);
                 }
                 
             }
             open.Sort((x, y) => x.MinCostToStart-y.MinCostToStart); // sort list in ascending MinCostToStart
-            if (open.Any());
             closed.Add(current);
-
-            if (Solutions.Count == numberOfCheckpoints && current.MinCostToStart > MaxSteps)
-            {
-                foreach (var tile in closed)
-                {
-                    if (tile.MinCostToStart <= MaxSteps)
-                        Reachable.Add(tile);
-                }
-                return;
-            }
+            
+            if (current.MinCostToStart <= MaxSteps) Reachable.Add(current);
+            else if (numberOfCheckpoints != 0 && (Solutions.Count == numberOfCheckpoints)) return;
+            
         } while (open.Any());
     }
 

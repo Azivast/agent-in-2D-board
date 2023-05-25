@@ -1,34 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
 using BoardGame;
+using TMPro;
+using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using Vectors;
 
+[SelectionBase]
 [RequireComponent(typeof(VectorRenderer))]
 public class Tile : TileParent {
-    
-    // 1. TileParent extends MonoBehavior, so you can add member variables here
-    // to store data.
-    public Material regularMaterial;
-    public Material penaltyMaterial;
 
     // Path finding 
     public Tile Parent;
-    public List<Tile> Neighbours;
-    internal int MinCostToStart; // Penalty to travel here from start position
-    public int MovementCost => movementPenalty == 0 ? 1 : movementPenalty;
+    [HideInInspector] public List<Tile> Neighbours;
     
-    //[NonSerialized] 
-    public VectorRenderer vectors;
-    
-    void Start() {
-        vectors = GetComponent<VectorRenderer>();
+    private int minCostToStartInternal = 0;
+    public int MinCostToStart // Penalty to travel here from start position
+    {
+        get { return minCostToStartInternal; }
+        set
+        {
+            minCostToStartInternal = value;
+            stepsText.text = (value == 0) ? "" : value.ToString();
+        }
     }
 
+    private VectorRenderer vectors;
+    private TMP_Text stepsText;
+
+    public void Reachable(bool reachable)
+    {
+        var gameobj = transform.GetChild(5).gameObject;
+        gameobj.SetActive(reachable); 
+        
+    }
+    
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.
     public override void OnSetup(Board board) {
+       
+        if(!TryGetComponent<VectorRenderer>(out vectors)) vectors = this.AddComponent<VectorRenderer>();
+        if(stepsText == null) stepsText = transform.GetComponentInChildren<TMP_Text>();
+        
+        // Clear old data
+        movementPenalty = 1;
+        MinCostToStart = 0;
 
+        // Add neighbours
+        Neighbours.Clear();
+        if (board.TryGetTile(coordinate + Vector2Int.up, out Tile neighbour) && !neighbour.IsBlocked) 
+            Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.down, out neighbour) && !neighbour.IsBlocked)
+            Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.left, out neighbour) && !neighbour.IsBlocked)
+            Neighbours.Add(neighbour);
+        if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour) && !neighbour.IsBlocked)
+            Neighbours.Add(neighbour);
+
+        
         // 2. Each tile has a unique 'coordinate'
         Vector2Int key = Coordinate;
         // TODO: Optimize
@@ -36,10 +66,12 @@ public class Tile : TileParent {
         var portal = transform.GetChild(1).gameObject;
         var start = transform.GetChild(3).gameObject;
         var finish = transform.GetChild(2).gameObject;
+        var obstacle = transform.GetChild(4).gameObject;
         blocked.SetActive(false);
         portal.SetActive(false);
         start.SetActive(false);
         finish.SetActive(false);
+        obstacle.SetActive(false);
         
         // 3. Tiles can have different modifiers
         if (IsBlocked) {
@@ -47,7 +79,7 @@ public class Tile : TileParent {
         }
         
         if (IsObstacle(out int penalty)) {
-            
+            obstacle.SetActive(true);
         }
         
         if (IsCheckPoint) {
@@ -61,28 +93,15 @@ public class Tile : TileParent {
         
         if (IsPortal(out Vector2Int destination)) {
             portal.SetActive(true);
-        }
-        
-        // 4. Other tiles can be accessed through the 'board' instance
-        // Add neighbours
-        Neighbours.Clear();
-        if (board.TryGetTile(coordinate + Vector2Int.up, out Tile neighbour) && !neighbour.IsBlocked) 
-            Neighbours.Add(neighbour);
-        if (board.TryGetTile(coordinate + Vector2Int.down, out neighbour) && !neighbour.IsBlocked)
-            Neighbours.Add(neighbour);
-        if (board.TryGetTile(coordinate + Vector2Int.left, out neighbour) && !neighbour.IsBlocked)
-            Neighbours.Add(neighbour);
-        if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour) && !neighbour.IsBlocked)
-            Neighbours.Add(neighbour);
-
-        // 5. Change the material color if this tile has penalty
-        if (TryGetComponent<MeshRenderer>(out var meshRenderer)) {
-            if (IsObstacle(out penalty)) {
-                meshRenderer.sharedMaterial = penaltyMaterial;
-            } else {
-                meshRenderer.sharedMaterial = regularMaterial;
+            Neighbours.Clear();
+            if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
+            {
+                Neighbours.Add(neighbour);
+                movementPenalty = neighbour.movementPenalty;
             }
         }
+        
+        Reachable(false);
     }
 
     // This function is called during the regular 'Update' step, but also gives
@@ -93,8 +112,11 @@ public class Tile : TileParent {
         {
             using (vectors.Begin())
             {
-                vectors.Draw(new Vector3(coordinate.x, 1, coordinate.y),
-                    new Vector3(target.x, 0.3f, target.y),
+                vectors.Draw(new Vector3(coordinate.x, 0.8f, coordinate.y),
+                    new Vector3(target.x, 0.8f, target.y),
+                    Color.magenta);
+                vectors.Draw(new Vector3(target.x, 0.8f, target.y),
+                    new Vector3(target.x, 0f, target.y),
                     Color.magenta);
             }
         }
