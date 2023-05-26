@@ -65,7 +65,7 @@ namespace BoardGame {
                 return true;
             }
 
-            penalty = default;
+            penalty = 1;
             return false;
         }
 

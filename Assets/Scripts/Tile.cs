@@ -27,7 +27,7 @@ public class Tile : TileParent {
         }
     }
 
-    [NonSerialized] private VectorRenderer vectors;
+    private VectorRenderer vectors;
     private TMP_Text stepsText;
     private GameObject blocked;
     private GameObject portal;
@@ -68,13 +68,7 @@ public class Tile : TileParent {
             Neighbours.Add(neighbour);
         if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour) && !neighbour.IsBlocked)
             Neighbours.Add(neighbour);
-        if (IsPortal(out Vector2Int destination)) {
-            portal.SetActive(true);
-            if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
-            {
-                Neighbours.Add(neighbour);
-            }
-        }
+
 
         // Disable all visuals
         blocked.SetActive(false);
@@ -88,10 +82,10 @@ public class Tile : TileParent {
             blocked.SetActive(true);
         }
         
-        if (IsObstacle(out int penalty)) {
+        if (IsObstacle(out movementPenalty)) {
             obstacle.SetActive(true);
         }
-        
+
         if (IsCheckPoint) {
             finish.SetActive(true);
             board.numberOfCheckpoints++;
@@ -100,25 +94,30 @@ public class Tile : TileParent {
         if (IsStartPoint) {
             start.SetActive(true);
         }
+        if (IsPortal(out Vector2Int destination)) {
+            portal.SetActive(true);
+            if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
+            {
+                Neighbours.Add(neighbour); // additional neighbour to target
+            }
+        }
 
-        Reachable(false); // assume tile cant be reached until Board.cs tells otherwise
+        Reachable(false); // assume tile cant be reached until Board.cs says otherwise
     }
 
     // This function is called during the regular 'Update' step, but also gives
     // you access to the 'board' instance.
     public override void OnUpdate(Board board)
     {
-        if (IsPortal(out var target))
+        if (!IsPortal(out var target)) return;
+        using (vectors.Begin())
         {
-            using (vectors.Begin())
-            {
-                vectors.Draw(new Vector3(coordinate.x, 0.8f, coordinate.y),
-                    new Vector3(target.x, 0.8f, target.y),
-                    Color.magenta);
-                vectors.Draw(new Vector3(target.x, 0.8f, target.y),
-                    new Vector3(target.x, 0f, target.y),
-                    Color.magenta);
-            }
+            vectors.Draw(new Vector3(coordinate.x, 0.8f, coordinate.y),
+                new Vector3(target.x, 0.8f, target.y),
+                Color.magenta);
+            vectors.Draw(new Vector3(target.x, 0.8f, target.y),
+                new Vector3(target.x, 0f, target.y),
+                Color.magenta);
         }
     }
 }

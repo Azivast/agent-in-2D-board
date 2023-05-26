@@ -57,7 +57,6 @@ public class Board : BoardParent
     // Find path to checkpoints using Dijkstra's algorithm.
     private void SearchPath(Tile start)
     {
-        start.movementPenalty = 0;
         // Create two sets
         var open = new List<Tile> { start }; // nodes to visit
         var closed = new List<Tile>(); // nodes that have been visited
