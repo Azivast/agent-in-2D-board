@@ -29,6 +29,11 @@ public class Tile : TileParent {
 
     [NonSerialized] private VectorRenderer vectors;
     private TMP_Text stepsText;
+    private GameObject blocked;
+    private GameObject portal;
+    private GameObject start;
+    private GameObject finish;
+    private GameObject obstacle;
 
     public void Reachable(bool reachable)
     {
@@ -36,16 +41,22 @@ public class Tile : TileParent {
         gameobj.SetActive(reachable); 
         
     }
-    
+
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.
     public override void OnSetup(Board board) {
-       
+       // Fetch components and game objects needed
         if(!TryGetComponent<VectorRenderer>(out vectors)) vectors = this.AddComponent<VectorRenderer>();
         if(stepsText == null) stepsText = transform.GetComponentInChildren<TMP_Text>();
+        blocked = transform.GetChild(0).gameObject;
+        portal = transform.GetChild(1).gameObject;
+        start = transform.GetChild(3).gameObject;
+        finish = transform.GetChild(2).gameObject;
+        obstacle = transform.GetChild(4).gameObject;
         
         // Clear old data
         MinCostToStart = 0;
+        Vector2Int key = Coordinate;
 
         // Add neighbours
         Neighbours.Clear();
@@ -57,23 +68,22 @@ public class Tile : TileParent {
             Neighbours.Add(neighbour);
         if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour) && !neighbour.IsBlocked)
             Neighbours.Add(neighbour);
+        if (IsPortal(out Vector2Int destination)) {
+            portal.SetActive(true);
+            if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
+            {
+                Neighbours.Add(neighbour);
+            }
+        }
 
-        
-        // 2. Each tile has a unique 'coordinate'
-        Vector2Int key = Coordinate;
-        // TODO: Optimize
-        var blocked = transform.GetChild(0).gameObject;
-        var portal = transform.GetChild(1).gameObject;
-        var start = transform.GetChild(3).gameObject;
-        var finish = transform.GetChild(2).gameObject;
-        var obstacle = transform.GetChild(4).gameObject;
+        // Disable all visuals
         blocked.SetActive(false);
         portal.SetActive(false);
         start.SetActive(false);
         finish.SetActive(false);
         obstacle.SetActive(false);
         
-        // 3. Tiles can have different modifiers
+        // And enable only active ones
         if (IsBlocked) {
             blocked.SetActive(true);
         }
@@ -90,15 +100,7 @@ public class Tile : TileParent {
         if (IsStartPoint) {
             start.SetActive(true);
         }
-        
-        if (IsPortal(out Vector2Int destination)) {
-            portal.SetActive(true);
-            if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
-            {
-                Neighbours.Add(neighbour);
-            }
-        }
-        
+
         Reachable(false); // assume tile cant be reached until Board.cs tells otherwise
     }
 

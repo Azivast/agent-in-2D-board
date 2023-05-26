@@ -31,20 +31,20 @@ public class Board : BoardParent
     // is modified.
     public override void SetupBoard() {
         
-        // 1. Get the size of the board
+        // Get the size of the board
         var boardSize = BoardSize;
         
+        // Clear old data
         Solutions.Clear();
         Reachable.Clear();
         numberOfCheckpoints = 0;
-        
         
         // Setup each tile
         foreach (var tile in Tiles) { 
             tile.OnSetup(this);
         }
         
-        // Run Djikstras algorithm from starting point
+        // Run Dijkstra algorithm from starting point
         foreach (Tile tile in Tiles)
         {
             if (tile.IsStartPoint)
@@ -52,26 +52,24 @@ public class Board : BoardParent
                 SearchPath(tile);
             }
         }
-        
-        // 3. Find a tile with a particular coordinate
-        Vector2Int coordinate = new Vector2Int(2, 1);
-        if (TryGetTile(coordinate, out Tile tile2)) {
-            
-        }
     }
     
-    // Find path to checkpoints
+    // Find path to checkpoints using Dijkstra's algorithm.
     private void SearchPath(Tile start)
     {
         start.movementPenalty = 0;
-        var open = new List<Tile> { start };
-        var closed = new List<Tile>();
+        // Create two sets
+        var open = new List<Tile> { start }; // nodes to visit
+        var closed = new List<Tile>(); // nodes that have been visited
         
         do
         {
+            // Move current first tile in open to closed.
             Tile current = open[0];
             open.Remove(current);
+            closed.Add(current);
 
+            // If current tile is a checkpoint a solution has been found -> save it.
             if (current.IsCheckPoint)
             {
                 List<Tile> solution = new();
@@ -79,18 +77,21 @@ public class Board : BoardParent
                 Solutions.Add(solution);
             }
 
+            // Check each of the current tiles neighbours.
             foreach (Tile neighbour in current.Neighbours)
             {
                 if (closed.Contains(neighbour)) continue; // ignore if already visited
 
+                // Update the neighbours values if it exists in open but with a longer path
                 if (open.Contains(neighbour))
                 {
-                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty) // update if found cheaper path
+                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
                     {
                         neighbour.Parent = current;
                         neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
                     }
                 }
+                // Or otherwise update it's values and add them to open.
                 else
                 {
                     neighbour.Parent = current;
@@ -99,11 +100,13 @@ public class Board : BoardParent
                 }
                 
             }
-            open.Sort((x, y) => x.MinCostToStart-y.MinCostToStart); // sort list in ascending MinCostToStart
-            closed.Add(current);
-            
+            // Sort list in ascending MinCostToStart.
+            open.Sort((x, y) => x.MinCostToStart-y.MinCostToStart); 
+
+            // Mark tile as reachable if within MaxSteps.
             if (current.MinCostToStart <= MaxSteps) Reachable.Add(current);
-            else if (numberOfCheckpoints != 0 && Solutions.Count == numberOfCheckpoints) return;
+            // If outside MaxSteps, break when all checkpoints have been found.
+            else if (numberOfCheckpoints != 0 && Solutions.Count == numberOfCheckpoints) return; 
             
         } while (open.Any());
     }
