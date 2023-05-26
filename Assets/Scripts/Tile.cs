@@ -13,10 +13,10 @@ using Vectors;
 public class Tile : TileParent {
 
     // Path finding 
-    public Tile Parent;
+    [SerializeField] public Tile Parent;
     [HideInInspector] public List<Tile> Neighbours;
     
-    private int minCostToStartInternal = 0;
+    [SerializeField]private int minCostToStartInternal = 0;
     public int MinCostToStart // Penalty to travel here from start position
     {
         get { return minCostToStartInternal; }
@@ -27,7 +27,7 @@ public class Tile : TileParent {
         }
     }
 
-    private VectorRenderer vectors;
+    [NonSerialized] private VectorRenderer vectors;
     private TMP_Text stepsText;
 
     public void Reachable(bool reachable)
@@ -93,15 +93,13 @@ public class Tile : TileParent {
         
         if (IsPortal(out Vector2Int destination)) {
             portal.SetActive(true);
-            Neighbours.Clear();
             if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
             {
                 Neighbours.Add(neighbour);
-                movementPenalty = neighbour.movementPenalty;
             }
         }
         
-        Reachable(false);
+        Reachable(false); // assume tile cant be reached until Board.cs tells otherwise
     }
 
     // This function is called during the regular 'Update' step, but also gives

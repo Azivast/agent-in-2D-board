@@ -12,9 +12,20 @@ using Vectors;
 public class Board : BoardParent
 {
     [HideInInspector] public int numberOfCheckpoints;
+    private int oldMaxSteps;
     public int MaxSteps;
     public List<List<Tile>> Solutions = new();
     public List<Tile> Reachable = new ();
+
+    private void Update()
+    {
+        // Re-calc board when changing maximum steps.
+        if (MaxSteps != oldMaxSteps)
+        {
+            oldMaxSteps = MaxSteps;
+            SetupBoard();
+        }
+    }
 
     // This function is called whenever the board or any tile inside the board
     // is modified.
@@ -74,7 +85,7 @@ public class Board : BoardParent
 
                 if (open.Contains(neighbour))
                 {
-                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
+                    if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty) // update if found cheaper path
                     {
                         neighbour.Parent = current;
                         neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
@@ -83,11 +94,7 @@ public class Board : BoardParent
                 else
                 {
                     neighbour.Parent = current;
-                    if (current.IsPortal(out _))
-                    {
-                        neighbour.MinCostToStart = current.MinCostToStart; // not applying movement cost when traveling though portals
-                    }
-                    else neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
+                    neighbour.MinCostToStart = current.MinCostToStart + neighbour.movementPenalty;
                     open.Add(neighbour);
                 }
                 
