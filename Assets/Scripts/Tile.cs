@@ -16,7 +16,7 @@ public class Tile : TileParent {
     [SerializeField] public Tile Parent;
     [HideInInspector] public List<Tile> Neighbours;
     
-    [SerializeField]private int minCostToStartInternal = 0;
+    [SerializeField] private int minCostToStartInternal = 0;
     public int MinCostToStart // Penalty to travel here from start position
     {
         get { return minCostToStartInternal; }

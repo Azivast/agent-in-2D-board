@@ -17,8 +17,9 @@ public class Board : BoardParent
     public List<List<Tile>> Solutions = new();
     public List<Tile> Reachable = new ();
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         // Re-calc board when changing maximum steps.
         if (MaxSteps != oldMaxSteps)
         {

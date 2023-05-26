@@ -148,7 +148,7 @@ namespace BoardGame {
             RegenerateBoard(tilePrefab, boardSize);
         }
 
-        private void Update() {
+        protected virtual void Update() {
             foreach (var tile in Tiles) {
                 tile.OnUpdate((Board) this);
             }
