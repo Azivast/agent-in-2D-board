@@ -6962,7 +6962,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 9
+  m_text: '-'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11539,7 +11539,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '-'
+  m_text: 5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -14131,6 +14131,7 @@ MonoBehaviour:
   - {fileID: 1747570616}
   - {fileID: 232798715}
   - {fileID: 1303557504}
+  - {fileID: 1533718772}
 --- !u!114 &847798550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22968,7 +22969,8 @@ MonoBehaviour:
   portalTarget: {x: 0, y: 0}
   movementPenalty: 1
   Parent: {fileID: 1533718772}
-  Neighbours: []
+  Neighbours:
+  - {fileID: 1533718772}
 --- !u!114 &1303681317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23115,7 +23117,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '-'
+  m_text: 6
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -25804,7 +25806,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1469865856
 Transform:
   m_ObjectHideFlags: 0
@@ -27353,7 +27355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: {x: 4, y: 0}
-  bitmask: 1
+  bitmask: 0
   portalTarget: {x: 0, y: 0}
   movementPenalty: 1
   Parent: {fileID: 847798549}
@@ -31725,6 +31727,7 @@ MonoBehaviour:
   Parent: {fileID: 948532188}
   Neighbours:
   - {fileID: 948532188}
+  - {fileID: 1533718772}
 --- !u!114 &1756403525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31852,6 +31855,7 @@ MonoBehaviour:
   Parent: {fileID: 948532188}
   Neighbours:
   - {fileID: 71623249}
+  - {fileID: 1533718772}
   - {fileID: 948532188}
 --- !u!114 &1787234108
 MonoBehaviour:
