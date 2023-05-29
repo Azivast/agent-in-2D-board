@@ -13,7 +13,7 @@ using Vectors;
 public class Tile : TileParent {
 
     // Path finding 
-    [SerializeField] public Tile Parent;
+    [HideInInspector] public Tile Parent;
     [HideInInspector] public List<Tile> Neighbours;
     
     private int minCostToStartInternal = 0;

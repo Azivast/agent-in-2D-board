@@ -12,10 +12,11 @@ using Vectors;
 public class Board : BoardParent
 {
     [HideInInspector] public int NumberOfCheckpoints;
+    [HideInInspector] public List<List<Tile>> Solutions = new();
+    [HideInInspector] public List<Tile> Reachable = new ();
     private int oldMaxSteps;
     public int MaxSteps;
-    public List<List<Tile>> Solutions = new();
-    public List<Tile> Reachable = new ();
+    
 
     protected override void Update()
     {
