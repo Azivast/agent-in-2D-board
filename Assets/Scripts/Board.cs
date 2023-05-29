@@ -11,7 +11,7 @@ using Vectors;
 [ExecuteAlways]
 public class Board : BoardParent
 {
-    [HideInInspector] public int numberOfCheckpoints;
+    [HideInInspector] public int NumberOfCheckpoints;
     private int oldMaxSteps;
     public int MaxSteps;
     public List<List<Tile>> Solutions = new();
@@ -38,14 +38,14 @@ public class Board : BoardParent
         // Clear old data
         Solutions.Clear();
         Reachable.Clear();
-        numberOfCheckpoints = 0;
+        NumberOfCheckpoints = 0;
         
         // Setup each tile
         foreach (var tile in Tiles) { 
             tile.OnSetup(this);
         }
         
-        // Run Dijkstra algorithm from starting point
+        // Run Dijkstra's algorithm from starting point
         foreach (Tile tile in Tiles)
         {
             if (tile.IsStartPoint)
@@ -64,7 +64,7 @@ public class Board : BoardParent
         
         do
         {
-            // Move current first tile in open to closed.
+            // Move current/first tile in open to closed.
             Tile current = open[0];
             open.Remove(current);
             closed.Add(current);
@@ -73,16 +73,16 @@ public class Board : BoardParent
             if (current.IsCheckPoint)
             {
                 List<Tile> solution = new();
-                Backtrack(current, start, solution);
+                Backtrack(current, start, solution); // step through parents to find exact path
                 Solutions.Add(solution);
             }
 
-            // Check each of the current tiles neighbours.
+            // Check each of the current tile's neighbours.
             foreach (Tile neighbour in current.Neighbours)
             {
                 if (closed.Contains(neighbour)) continue; // ignore if already visited
 
-                // Update the neighbours values if it exists in open but with a longer path
+                // Update the neighbour's values if it exists in open but with a more expensive path
                 if (open.Contains(neighbour))
                 {
                     if (neighbour.MinCostToStart > current.MinCostToStart + neighbour.movementPenalty)
@@ -106,9 +106,9 @@ public class Board : BoardParent
             // Mark tile as reachable if within MaxSteps.
             if (current.MinCostToStart <= MaxSteps) Reachable.Add(current);
             // If outside MaxSteps, break when all checkpoints have been found.
-            else if (numberOfCheckpoints != 0 && Solutions.Count == numberOfCheckpoints) return; 
+            else if (NumberOfCheckpoints != 0 && Solutions.Count == NumberOfCheckpoints) return; 
             
-        } while (open.Any());
+        } while (open.Any()); // loop for as long as open isn't empty
     }
 
     // Extract the shortest path between two tiles using their parents.

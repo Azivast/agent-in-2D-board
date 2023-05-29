@@ -16,7 +16,7 @@ public class Tile : TileParent {
     [SerializeField] public Tile Parent;
     [HideInInspector] public List<Tile> Neighbours;
     
-    [SerializeField] private int minCostToStartInternal = 0;
+    private int minCostToStartInternal = 0;
     public int MinCostToStart // Penalty to travel here from start position
     {
         get { return minCostToStartInternal; }
@@ -37,6 +37,7 @@ public class Tile : TileParent {
 
     public void Reachable(bool reachable)
     {
+        // Visualize if reachable or not
         var gameobj = transform.GetChild(5).gameObject;
         gameobj.SetActive(reachable); 
         
@@ -44,8 +45,9 @@ public class Tile : TileParent {
 
     // This function is called when something has changed on the board. All 
     // tiles have been created before it is called.
-    public override void OnSetup(Board board) {
-       // Fetch components and game objects needed
+    public override void OnSetup(Board board) 
+    {
+        // Fetch components and game objects needed
         if(!TryGetComponent<VectorRenderer>(out vectors)) vectors = this.AddComponent<VectorRenderer>();
         if(stepsText == null) stepsText = transform.GetComponentInChildren<TMP_Text>();
         blocked = transform.GetChild(0).gameObject;
@@ -56,7 +58,6 @@ public class Tile : TileParent {
         
         // Clear old data
         MinCostToStart = 0;
-        Vector2Int key = Coordinate;
 
         // Add neighbours
         Neighbours.Clear();
@@ -68,29 +69,24 @@ public class Tile : TileParent {
             Neighbours.Add(neighbour);
         if (board.TryGetTile(coordinate + Vector2Int.right, out neighbour) && !neighbour.IsBlocked)
             Neighbours.Add(neighbour);
-
-
-        // Disable all visuals
+        
+        // Disable type visualization
         blocked.SetActive(false);
         portal.SetActive(false);
         start.SetActive(false);
         finish.SetActive(false);
         obstacle.SetActive(false);
-        
-        // And enable only active ones
+        // And reenable only for active type
         if (IsBlocked) {
             blocked.SetActive(true);
         }
-        
         if (IsObstacle(out movementPenalty)) {
             obstacle.SetActive(true);
         }
-
         if (IsCheckPoint) {
             finish.SetActive(true);
-            board.numberOfCheckpoints++;
+            board.NumberOfCheckpoints++;
         }
-        
         if (IsStartPoint) {
             start.SetActive(true);
         }
@@ -98,17 +94,18 @@ public class Tile : TileParent {
             portal.SetActive(true);
             if (board.TryGetTile(destination, out neighbour) && !neighbour.IsBlocked)
             {
-                Neighbours.Add(neighbour); // additional neighbour to target
+                Neighbours.Add(neighbour); // destination = additional neighbour to check during path finding
             }
         }
 
-        Reachable(false); // assume tile cant be reached until Board.cs says otherwise
+        Reachable(false); // assume tile can't be reached until Board.cs sets otherwise
     }
 
     // This function is called during the regular 'Update' step, but also gives
     // you access to the 'board' instance.
     public override void OnUpdate(Board board)
     {
+        // Draw portal target if tile is portal
         if (!IsPortal(out var target)) return;
         using (vectors.Begin())
         {
